@@ -1,0 +1,339 @@
+
+body{
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif
+    
+}
+
+.content{
+    height: 100vh;
+    display: grid;
+    grid-template: 100px 1fr/0.45fr 1.55fr;
+    
+}
+
+.header{
+    grid-area: 1/1/2/-1;
+    background-color: #82b74b;
+    color:white;
+    font-size:60px;
+    font-weight: bolder;
+    padding-left: 60px;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar{
+    grid-area: 2/1/-1/2;
+    background-color:  rgba(0, 0, 0, 0.815);
+    padding: 40px 0 0 0;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap:5px;
+    
+}
+
+.project-item{
+
+    height:50px;
+    width: 65%;
+    flex-shrink: 0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    color: white;
+    font-size: large;
+    font-weight: 300;
+    padding-left: 15%;
+}
+
+.project-item img{
+    height:25px;
+    width:25px;
+    margin-right: 20px;
+}
+
+.project-item:focus,.project-item:hover{
+    background-color: rgba(255, 255, 255, .1);
+
+}
+
+
+.main-content{
+    grid-area: 2/2/-1/-1;
+    padding: 40px;
+    padding-top: 30px;
+    background-color:rgba(0, 0, 0, 0.89);
+}
+
+.list{
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap:20px;
+    
+}
+
+.list img,.add-task-form img,svg{
+    height: 30px;
+    width:30px;
+}
+
+#eye:hover{
+    filter: invert(51%) sepia(25%) saturate(6405%) hue-rotate(185deg) brightness(99%) contrast(92%);
+}
+
+#pencil:hover{
+    filter: invert(30%) sepia(83%) saturate(402%) hue-rotate(31deg) brightness(95%) contrast(86%);
+}
+
+#trash:hover{
+    filter: invert(24%) sepia(88%) saturate(6850%) hue-rotate(357deg) brightness(96%) contrast(112%);
+}
+
+#eye{
+    height: 24px;
+    width: 24px;
+}
+.item{
+   
+    height:40px;
+    border: 2px solid #424242;
+    background-color: #424242;;
+    width: 100%;
+    color: white;;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding:0 20px 0 20px;
+    box-sizing: border-box;
+   
+}
+
+.options{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width:25%;
+}
+
+.add-task{
+    background-color: #82b74b;
+    height: 40px;
+    color: white;
+    font-size: larger;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25%;
+    border-radius: 8px;
+    margin-top:10px;
+}
+
+.add-task img{
+    margin-right: 10px;
+}
+
+.add-task-form{
+    visibility: hidden;
+    position: fixed; 
+    transition: visibility 10ms;
+    top:10%;
+    left:25%;
+    background-color: #262424;
+    height: 80%;
+    width:42%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    box-sizing: border-box;
+    transform: scale(0.2);
+    transition: transform 800ms;
+    
+}
+
+.add-task-form input,.add-project input{
+   
+    background-color: rgba(255, 255, 255, .1);
+    color:white;
+    border: 1px solid rgba(255, 255, 255, .1);
+    box-sizing: border-box;
+}
+
+.add-task-form input:focus,textarea#task-desc:focus{
+    
+   border-color: white;
+   
+}
+
+.add-task-form #task-name,.add-project input{
+    outline: none;
+    width: 78%;
+    height:50px;
+    font-size: large;
+    padding:8px;
+    margin-bottom: 10px;
+}
+
+.add-task-form label{
+    color:white;
+    align-self: flex-start;
+    margin-left: 11.1%;
+    margin-bottom: 10px;
+}
+
+.add-task-form #task-desc{
+    outline:none;
+    background-color: rgba(255, 255, 255, .1);
+    color:white;
+    border: 1px solid rgba(255, 255, 255, .1);
+    padding:8px;
+    font-size: large;
+    width: 78%;
+    box-sizing: border-box; 
+    margin-bottom: 10px;
+    
+}
+
+.add-task-form #date{
+    background-color: white;
+    border-color:white;
+    color:black;
+    padding: 2px;
+    align-self:flex-start;
+    margin-bottom: 10px;
+    margin-left: 11.1%;
+}
+
+.add-task-form img{
+    align-self: flex-end;
+    margin-right: 4%;
+}
+
+#save-button img{
+    height: 20px;
+    width:20px;
+    margin-right: 5px;
+    align-self: center;
+}
+
+.add-task-form #save-button,.add-project #add-project-btn,
+#save-project-btn,
+#cancel-project-btn,
+#delete-project-btn{
+    all:unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: flex-end;
+    background-color: #82b74b;
+    color: white;
+    font-size: large;
+    font-weight: bolder;
+    width:88px;
+    height: 30px;
+    margin-bottom: 40px;
+}
+
+#delete-project-btn{
+    width:18%;
+    padding: 3px;
+    background-color:rgb(250, 15, 15)   ;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    margin-left: 81%;
+}
+.add-task-form #save-button{
+    padding:2px;
+    border-radius:5px;
+    margin-right:10.6%;
+}
+
+.add-project #add-project-btn,#save-project-btn,#cancel-project-btn{
+    padding:2px;
+    font-size:medium;
+    width: 180px;
+    padding-right: 6px;
+    margin-left: -1px;
+    border-radius: 5px;
+}
+
+#save-project-btn,#cancel-project-btn{
+    font-size:large;
+    background-color: #82b74b;
+    width: 90px;
+    padding-right: 6px;
+    border-radius: 5px;
+}
+
+#cancel-project-btn{
+    background-color: rgb(250, 15, 15);
+    padding-left: 4px;
+}
+
+
+.project-btns{
+    display: flex;
+    gap:10px;
+    width: 180px;
+    
+}
+
+
+.add-project{
+    margin-top: 20px;
+}
+
+.project-form{
+    display: none;
+}
+
+.add-project #add-project-btn img{
+    height:20px;
+    width:20px;
+    margin-right: 4px;
+}
+
+.add-project{
+    order:1;
+}
+
+.add-project input{
+    width:184px;
+    margin-left: -2px;
+    height: 40px;
+}
+
+.add-project input::placeholder{
+    color: rgba(255, 255, 255, 0.719);
+    font-size: medium;
+    text-align: center;
+}
+
+input[type="range"]{
+    width: 140px;
+    align-self:flex-start;
+    margin-left: 11.1%;
+    color:transparent;
+    accent-color: yellow;
+}
+
+datalist{
+    display: flex;
+    justify-content: space-between;
+    width: 140px;
+    align-self:flex-start;
+    margin-bottom: 10px;
+    margin-left: 11.1%;
+}
+  
+#levels{
+    font-size: smaller;
+    color:white;
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="main.js" defer></script>
+    <title>TODO list</title>
+</head>
+<body>
+    <div class="content">
+        <div class="header">TODO</div>
+        <div class="sidebar">
+            <div data-title="inbox" tabindex="1" class="project-item">
+                <img src="./assets/images/inbox.svg" alt=""><div>Inbox</div></div>
+            <div data-title="today" tabindex="1" class="project-item">
+                <img src="./assets/images/today.svg" alt=""><div>Today</div></div>
+            <div data-title="week" tabindex="1" class="project-item">
+                <img src="./assets/images/week.svg" alt=""><div>This week</div></div>
+           
+            <div class="add-project">
+                <div class="project-form">
+                    <input type="text" id="project-title" placeholder="new project title">
+                    <div class="project-btns">
+                        <button id="save-project-btn">save</button>
+                        <button id="cancel-project-btn">cancel</button>
+                    </div>
+                </div>
+                <button id="add-project-btn"><img src="./assets/images/plus.svg" alt="">  
+                        Add new project</button>
+            </div>
+        </div>
+        <div class="main-content">
+            <button id="delete-project-btn">Delete project</button>
+            <div class="list">
+               <!-- <div class="item">
+                    <div>dheudhid3hdu3ih3iuh3uirh3r</div> 
+                    <img id="flag" src="./assets/images/flag.svg" alt="">
+                    <div>Dec 10th</div>
+                    <div class="options">
+                        <img id="eye"src="./assets/images/eye.svg" alt="">
+                        <img id="pencil" src="./assets/images/pencil.svg" alt="">
+                        <img id="trash"src="./assets/images/trash.svg" alt="">
+                    </div>                     
+                </div> -->
+                <div class="add-task">
+                    <img src="./assets/images/plus.svg" alt="">
+                    <div>Add new task</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="add-task-form">
+        <img id="form-close-button" src="./assets/images/close.svg" alt="">
+        <label for="task-name">Task name</label>
+        <input type="text" id="task-name">
+        <label for="task-desc">Task description</label>
+        <textarea id="task-desc" tabindex="1" cols="54" rows="8"></textarea>
+        <label for="date">Due date</label>
+        <input type="date" name="date" id="date">
+        <label for="priority">Priority</label>
+        <input type="range" min="0" max="2" id="priority" name="priority" list="levels">
+        <datalist id="levels">
+            <option value="0" label="Low"></option>
+            <option value="1" label="Medium"></option>
+            <option value="2" label="High"></option>
+        </datalist>
+        <button id="save-button"> <img src="./assets/images/tick.svg" alt="">
+        save</button>
+
+    </div>
+</body>
+</html>
+

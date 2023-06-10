@@ -1,0 +1,19 @@
+{
+  "name": "todo-list",
+  "version": "1.0.0",
+  "description": "Made for odin project",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "watch": "webpack --watch"
+  },
+  "author": "Shahad",
+  "license": "ISC",
+  "devDependencies": {
+    "css-loader": "^6.8.1",
+    "file-loader": "^6.2.0",
+    "html-loader": "^4.2.0",
+    "style-loader": "^3.3.3"
+  }
+}
