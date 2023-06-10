@@ -25,6 +25,10 @@ const projectHandler = (function (){
         return {"title":title,"tasks":[]}
     }
 
+    projects.push(projectConstructor('inbox'))
+    projects.push(projectConstructor('today'))
+    projects.push(projectConstructor('week'))
+
     const pushProject = (obj)=>{
         projects.push(obj)
     }
@@ -49,7 +53,14 @@ const projectHandler = (function (){
 
     }
 
-    return{projectConstructor,pushProject,getProjects,isDuplicate}
+    const deleteProject = (str)=>{
+        projects = projects.filter((project)=>{
+            return project.title!=str
+        })
+        console.log(projects)
+    }
+
+    return{projectConstructor,pushProject,getProjects,isDuplicate,deleteProject}
 
 })();
 
@@ -58,6 +69,7 @@ const DOMHandler = (function (){
 
     //event listeners
 
+    //to change input range color based on chosen priority
     const range = document.getElementById('priority')
     range.value = '1';
     range.addEventListener('input',()=>{
@@ -129,6 +141,13 @@ const DOMHandler = (function (){
                 let elt = document.createElement('div')
                 let temp = document.createElement('div')
                 elt.classList.add('project-item')
+
+                // event listener for non-default projects
+                elt.addEventListener('click',()=>{
+                    currentProject = elt.getAttribute('data-title')
+                    deleteProjectButton.style.display = 'flex'
+                })
+
                 elt.setAttribute('data-title',projectTitle)
                 elt.setAttribute('tabindex','1')
                 temp.textContent = projectTitle
@@ -149,7 +168,32 @@ const DOMHandler = (function (){
         }
     })
 
+    //viewing projects
+    let currentProject = "";
+    const inbox = document.querySelector("[data-title='inbox']");
+    const today = document.querySelector("[data-title='today']");
+    const week = document.querySelector("[data-title='week']");
 
+    [inbox,today,week].forEach(elt=>{
+
+        elt.addEventListener('click',()=>{
+            currentProject = elt.getAttribute('data-title')
+            deleteProjectButton.style.display = 'none'
+        })
+     }
+    )
+
+    //deleting projects
+    const deleteProjectButton = document.querySelector('#delete-project-btn')
+    deleteProjectButton.addEventListener('click',()=>{       
+        if(currentProject!=="")
+            {
+            sidebar.removeChild(document.querySelector(`[data-title=${currentProject}]`))
+            projectHandler.deleteProject(currentProject)
+            currentProject = ""
+            }
+    })
+    
     //saving task
 
     
