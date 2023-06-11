@@ -12,11 +12,50 @@ import weekIcon from './week.svg'
 import flagIcon from './flag.svg';
 
 //start
+const taskHandler = (function (){
 
-const taskConstructor = (title,description,dueDate,priority) => {
-    return {title,description,dueDate,priority}
+    const taskConstructor = (name,description,dueDate,priority) => {
+        return {name,description,dueDate,priority}
+    
+    }
 
-}
+    const isDuplicate = (task,project)=>{
+        let projects = projectHandler.getProjects()
+        let found = 0
+        for(let i in projects)
+        {
+            for(let j in projects[i].tasks)
+            {
+                if(task==projects[i].tasks[j])
+                {
+                    found = 1;
+                    return true
+                }
+            }
+        }
+        if(found==0)
+            return false;
+
+    }
+
+    const pushTask = (obj,project)=>{
+        let projects = projectHandler.getProjects()
+        let index;
+        for(let i in projects)
+        {
+            if(projects[i].title==project)
+            {
+                index = i;
+                break;
+            }
+        }
+        projects[index].tasks.push(obj)
+       
+    }
+
+    return {taskConstructor,isDuplicate,pushTask}
+})();
+
 
 const projectHandler = (function (){
 
@@ -142,10 +181,14 @@ const DOMHandler = (function (){
                 let temp = document.createElement('div')
                 elt.classList.add('project-item')
 
-                // event listener for non-default projects
+                // event listener for non-default projects to add their tasks to DOM
                 elt.addEventListener('click',()=>{
+                    taskList.replaceChildren()
                     currentProject = elt.getAttribute('data-title')
+                    addTasksToList()
                     deleteProjectButton.style.display = 'flex'
+                    newTaskButton.style.display = 'flex'
+                
                 })
 
                 elt.setAttribute('data-title',projectTitle)
@@ -168,7 +211,35 @@ const DOMHandler = (function (){
         }
     })
 
-    //viewing projects
+    //viewing non-default projects
+
+    const addTasksToList = ()=>{
+        let projects = projectHandler.getProjects()
+        let index;
+        for(let i in projects)
+        {
+            if(projects[i].title==currentProject)
+            {
+                index = i;
+                break;
+            }
+        }
+        if(projects[index].tasks.length!=0)
+        {         
+            let tasks = projects[index].tasks
+            let items = []
+            for(let j in tasks)
+            {
+                items.push(constructTaskElement(tasks[j].name,tasks[j].description,
+                    tasks[j].dueDate,tasks[j].priority))
+            }
+            taskList.replaceChildren(items)
+            console.log(items)
+            //start from here next time
+        }
+    }
+
+    //viewing default projects
     let currentProject = "";
     const inbox = document.querySelector("[data-title='inbox']");
     const today = document.querySelector("[data-title='today']");
@@ -176,10 +247,21 @@ const DOMHandler = (function (){
 
     [inbox,today,week].forEach(elt=>{
 
-        elt.addEventListener('click',()=>{
-            currentProject = elt.getAttribute('data-title')
-            deleteProjectButton.style.display = 'none'
-        })
+        if(elt==inbox)
+        {
+            elt.addEventListener('click',()=>{
+                currentProject = elt.getAttribute('data-title')
+                deleteProjectButton.style.display = 'none'
+                newTaskButton.style.display = 'flex'
+            })
+        }
+        else{
+            elt.addEventListener('click',()=>{
+                currentProject = elt.getAttribute('data-title')
+                deleteProjectButton.style.display = 'none'
+                newTaskButton.style.display = 'none'
+            })
+        }
      }
     )
 
@@ -189,13 +271,96 @@ const DOMHandler = (function (){
         if(currentProject!=="")
             {
             sidebar.removeChild(document.querySelector(`[data-title=${currentProject}]`))
+            taskList.replaceChildren()
             projectHandler.deleteProject(currentProject)
             currentProject = ""
             }
     })
-    
-    //saving task
 
+
+    //function to create a task DOM element
+    function constructTaskElement(nameArg,descArg,dueDateArg,priorityArg){
+     
+    let task = document.createElement('div')
+    task.classList.add('item')
+    let name = document.createElement('div')
+    name.textContent = nameArg
+    name.setAttribute('id','task-DOM-name')
+    let flag = document.createElement('img')
+    flag.setAttribute('id','flag')
+    flag.src = flagIcon
+    console.log(nameArg+priorityArg)
+    if(priorityArg=='0')
+        flag.style.filter = 'invert(30%) sepia(83%) saturate(402%) hue-rotate(31deg) brightness(95%) contrast(86%)'
+    else if(priorityArg=='2')
+        flag.style.filter = 'invert(91%) sepia(148%) saturate(4729%) hue-rotate(359deg) brightness(137%) contrast(175%)'
+    else
+        flag.style.filter = 'invert(21%) sepia(88%) saturate(6850%) hue-rotate(357deg) brightness(96%) contrast(112%)'        
+
+    let dueDate = document.createElement('div')
+    dueDate.textContent = dueDateArg
+    let options = document.createElement('div')
+    options.classList.add('options')
+    let eye = document.createElement('img')
+    eye.setAttribute('id','eye')
+    eye.src = eyeIcon
+    let pencil = document.createElement('img')
+    pencil.setAttribute('id','pencil')
+    pencil.src = pencilIcon
+    let trash = document.createElement('img')
+    trash.setAttribute('id','trash')
+    trash.src = trashIcon
+    options.append(eye,pencil,trash)
+    task.append(name,flag,dueDate,options)
+
+    return task;
+
+    }
+    
+
+    //saving task
+    const saveTaskButton = document.querySelector('#save-button')
+    const taskName = document.querySelector('#task-name')
+    const taskDesc = document.querySelector('#task-desc')
+    const taskDue = document.querySelector('#date')
+    const taskPriority = document.querySelector('#priority')
+    const taskList = document.querySelector('.list')
+
+    saveTaskButton.addEventListener('click',()=>{
+
+        if(!taskHandler.isDuplicate(taskName.value.trim(),currentProject))
+        {
+            if(taskName.value.trim().length!=0&&taskDesc.value.trim().length!=0
+            &&taskDue.value.length!=0&&taskPriority.value.length!=0)
+            {
+                let newTask = taskHandler.taskConstructor(taskName.value.trim(),taskDesc.value.trim(),
+                taskDue.value,taskPriority.value)
+                
+                taskHandler.pushTask(newTask,currentProject)
+                let taskELT = constructTaskElement(newTask.name,newTask.description,
+                    newTask.dueDate,newTask.priority)
+                taskList.appendChild(taskELT);
+
+                //closing form
+                taskName.value = ""
+                taskDesc.value = ""
+                taskDue.value = null
+                taskPriority.value = '1'
+                taskPriority.style.accentColor = 'yellow'
+                newTaskForm.style.visibility = 'hidden'
+                newTaskForm.style.transform = 'scale(0.2)'
+                content.style.filter = 'none'
+            }
+            else{
+                alert('fields can\'t be empty')
+            }
+
+        }
+        else{
+            alert('task name must be unique')
+        }
+        
+    })
     
 
 })();

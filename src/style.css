@@ -74,10 +74,11 @@ body{
     flex-direction: column;
     align-items: center;
     gap:20px;
+    margin-bottom: 30px;
     
 }
 
-.list img,.add-task-form img,svg{
+.add-task img,.list img,.add-task-form img,svg{
     height: 30px;
     width:30px;
 }
@@ -131,8 +132,10 @@ body{
     justify-content: center;
     align-items: center;
     width: 25%;
+    margin-left: 36%;
     border-radius: 8px;
     margin-top:10px;
+    order:1;
 }
 
 .add-task img{
@@ -241,6 +244,7 @@ body{
     margin-bottom: 40px;
 }
 
+
 #delete-project-btn{
     width:18%;
     padding: 3px;
@@ -336,4 +340,12 @@ datalist{
 #levels{
     font-size: smaller;
     color:white;
+}
+
+#task-DOM-name{
+    width: 23%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
 }
