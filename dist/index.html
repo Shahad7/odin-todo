@@ -69,6 +69,25 @@
         save</button>
 
     </div>
+    <div class="edit-task-form">
+        <img id="edit-close-button" src="./assets/images/close.svg" alt="">
+        <label for="edit-task-name">Task name</label>
+        <input type="text" id="edit-task-name" required>
+        <label for="edit-task-desc">Task description</label>
+        <textarea id="edit-task-desc" tabindex="1" cols="54" rows="8" required></textarea>
+        <label for="edit-date">Due date</label>
+        <input type="date" name="date" id="edit-date" required>
+        <label for="edit-priority">Priority</label>
+        <input type="range" min="0" max="2" id="edit-priority" name="edit-priority" list="levels" required>
+        <datalist id="levels">
+            <option value="0" label="Low"></option>
+            <option value="1" label="Medium"></option>
+            <option value="2" label="High"></option>
+        </datalist>
+        <button id="edit-button"> <img src="./assets/images/tick.svg" alt="">
+        confirm</button>
+
+    </div>
 </body>
 </html>
 
