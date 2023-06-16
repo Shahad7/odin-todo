@@ -11,11 +11,14 @@ import todayIcon from './today.svg'
 import weekIcon from './week.svg'
 import flagIcon from './flag.svg';
 
+//from date-fns library
+import { isThisWeek, isToday, parseISO, format } from 'date-fns'
+
 //start
 const taskHandler = (function (){
 
-    const taskConstructor = (name,description,dueDate,priority) => {
-        return {name,description,dueDate,priority}
+    const taskConstructor = (name,description,dueDate,priority,project) => {
+        return {name,description,dueDate,priority,project}
     
     }
 
@@ -50,6 +53,7 @@ const taskHandler = (function (){
             }
         }
         projects[index].tasks.push(obj)
+        storageHandler.writeProjects()
        
     }
 
@@ -74,6 +78,7 @@ const taskHandler = (function (){
             }
         } 
         projects[projectIndex].tasks[taskIndex] = obj;
+        storageHandler.writeProjects()
     }
 
     const cleanUp = (project,task)=>{
@@ -97,6 +102,7 @@ const taskHandler = (function (){
             }
         }
         projects[projectIndex].tasks.splice(taskIndex,1)
+        storageHandler.writeProjects()
 
     }
 
@@ -117,6 +123,7 @@ const projectHandler = (function (){
 
     const pushProject = (obj)=>{
         projects.push(obj)
+        storageHandler.writeProjects()
     }
 
     const getProjects = ()=>{
@@ -143,10 +150,35 @@ const projectHandler = (function (){
         projects = projects.filter((project)=>{
             return project.title!=str
         })
-        
+        storageHandler.writeProjects()
     }
 
-    return{projectConstructor,pushProject,getProjects,isDuplicate,deleteProject}
+    const setProjects = (arr)=>{
+        projects = arr
+
+    }
+
+    return{projectConstructor,pushProject,getProjects,isDuplicate,deleteProject,setProjects}
+
+})();
+
+const storageHandler = (function (){
+    const writeProjects = ()=>{
+        localStorage.setItem('projects',JSON.stringify(projectHandler.getProjects()))    
+    }
+
+    const readProjects = ()=>{
+        let projects;
+        if(localStorage.getItem('projects')){
+            projects = localStorage.getItem('projects')
+            return JSON.parse(projects)
+        }
+        else 
+            return null
+
+    }
+
+    return {writeProjects,readProjects}
 
 })();
 
@@ -224,16 +256,22 @@ const DOMHandler = (function (){
 
 
     //saving edits to task
-    saveEditButton.addEventListener('click',()=>{
-        if(!taskHandler.isDuplicate(editTaskName.value))
+    saveEditButton.addEventListener('click',(e)=>{
+        if(!taskHandler.isDuplicate(editTaskName.value)||editTaskName.value==currentTask)
         {
             if(editTaskName.value.trim().length!=0&&editTaskDesc.value.trim().length!=0&&
                 editTaskDue.value.trim().length!=0&&editTaskPriority.value.trim().length!=0)
             {
                 let modifiedTask = taskHandler.taskConstructor(editTaskName.value,editTaskDesc.value,
-                    editTaskDue.value,editTaskPriority.value)
-                taskHandler.updateTask(modifiedTask,currentTask,currentProject)
-                addTasksToList()
+                    editTaskDue.value,editTaskPriority.value,projectToEdit)
+                taskHandler.updateTask(modifiedTask,currentTask,projectToEdit)
+
+                if(currentProject=='today')
+                    getTodayTasks()
+                else if(currentProject=='week')
+                    getThisWeekTasks()
+                else
+                    addTasksToList()
                 editTaskForm.style.visibility = 'hidden'
                 editTaskForm.style.transform = 'scale(0.2)'
                 content.style.filter = 'none'
@@ -252,6 +290,22 @@ const DOMHandler = (function (){
         }
     })
     
+
+    //viewing tasks
+    const viewTask = document.querySelector('.view-task')
+    const viewCloseButton = document.querySelector('#view-close-button')
+    const viewTitle = document.getElementById('view-title')
+    const viewDesc = document.getElementById('view-desc')
+    const viewPriority = document.getElementById('view-priority')
+    const viewDate = document.getElementById('view-date')
+
+
+
+    //closing view task card
+    viewCloseButton.addEventListener('click',()=>{
+        content.style.filter = 'none'
+        viewTask.style.display = 'none'
+    })
 
 
     //new project opening n closing
@@ -287,32 +341,8 @@ const DOMHandler = (function (){
                 projectInput.value = ""
                 newProjectForm.style.display = 'none';
                 newProjectButton.style.display = 'flex';
-                let elt = document.createElement('div')
-                let temp = document.createElement('div')
-                elt.classList.add('project-item')
-
-                // event listener for non-default projects to add their tasks to DOM
-                elt.addEventListener('click',()=>{
-                    if(currentProject!="")
-                    {
-                        document.querySelector(`[data-title=${currentProject}]`).style.backgroundColor = 'initial'
-                    }
-                    elt.style.backgroundColor = 'rgba(255, 255, 255, .1)'
-                    taskList.replaceChildren()
-                    currentProject = elt.getAttribute('data-title')
-                    addTasksToList()
-                    deleteProjectButton.style.display = 'flex'
-                    newTaskButton.style.display = 'flex'
-                
-                })
-
-                elt.setAttribute('data-title',projectTitle)
-                elt.setAttribute('tabindex','1')
-                temp.textContent = projectTitle
-                let icon = document.createElement('img')
-                icon.src = projectIcon;
-                elt.append(icon,temp)
-                sidebar.appendChild(elt)
+   
+                sidebar.appendChild(constructProjectElement(projectTitle))
 
             }
             else{
@@ -325,6 +355,38 @@ const DOMHandler = (function (){
 
         }
     })
+
+    //function to construct project DOM element
+    function constructProjectElement(title){
+        let elt = document.createElement('div')
+        let temp = document.createElement('div')
+        elt.classList.add('project-item')
+
+        // event listener for non-default projects to add their tasks to DOM
+        elt.addEventListener('click',()=>{
+            if(currentProject!=""&&currentProject!=title)
+            {
+                document.querySelector(`[data-title=${currentProject}]`).style.backgroundColor = 'initial'
+            }
+            elt.style.backgroundColor = 'rgba(255, 255, 255, .1)'
+            taskList.replaceChildren()
+            currentProject = elt.getAttribute('data-title')
+            addTasksToList()
+            deleteProjectButton.style.display = 'flex'
+            newTaskButton.style.display = 'flex'
+        
+        })
+
+        elt.setAttribute('data-title',title)
+        elt.setAttribute('tabindex','1')
+        temp.textContent = title
+        let icon = document.createElement('img')
+        icon.src = projectIcon;
+        elt.append(icon,temp)
+        
+        return elt;
+    }
+
 
     //viewing non-default projects
     const taskList = document.querySelector('.list')
@@ -346,7 +408,7 @@ const DOMHandler = (function (){
             for(let j in tasks)
             {
                 items.push(constructTaskElement(tasks[j].name,tasks[j].description,
-                    tasks[j].dueDate,tasks[j].priority))
+                    tasks[j].dueDate,tasks[j].priority,tasks[j].project))
             }
             taskList.replaceChildren(...items)
         
@@ -355,43 +417,105 @@ const DOMHandler = (function (){
 
     //viewing default projects
     let currentProject = "";
+    let projectToEdit = "";
     const inbox = document.querySelector("[data-title='inbox']");
     const today = document.querySelector("[data-title='today']");
     const week = document.querySelector("[data-title='week']");
 
-    [inbox,today,week].forEach(elt=>{
 
+    inbox.addEventListener('click',()=>{
+        if(currentProject!=""&&currentProject!='inbox')
+            document.querySelector(`[data-title=${currentProject}]`).style.backgroundColor = 'initial'
+        inbox.style.backgroundColor = 'rgba(255, 255, 255, .1)'
+        taskList.replaceChildren()
+        currentProject = inbox.getAttribute('data-title')
+        addTasksToList()
+        deleteProjectButton.style.display = 'none'
+        newTaskButton.style.display = 'flex'
+    })
     
-        if(elt==inbox)
-        {
-            elt.addEventListener('click',()=>{
-                if(currentProject!="")
-                    document.querySelector(`[data-title=${currentProject}]`).style.backgroundColor = 'initial'
-                elt.style.backgroundColor = 'rgba(255, 255, 255, .1)'
-                taskList.replaceChildren()
-                currentProject = elt.getAttribute('data-title')
-                addTasksToList()
-                deleteProjectButton.style.display = 'none'
-                newTaskButton.style.display = 'flex'
-            })
+       
+    today.addEventListener('click',()=>{
+        today.style.backgroundColor = 'rgba(255, 255, 255, .1)'
+        if(currentProject!=""&&currentProject!='today')
+            document.querySelector(`[data-title=${currentProject}]`).style.backgroundColor = 'initial'
+        taskList.replaceChildren()
+        currentProject = today.getAttribute('data-title')
+        deleteProjectButton.style.display = 'none'
+        newTaskButton.style.display = 'none'
+    
+        //calling function to add today's tasks to the task list
+        getTodayTasks()
+    })
+
+    week.addEventListener('click',()=>{
+        week.style.backgroundColor = 'rgba(255, 255, 255, .1)'
+        if(currentProject!=""&&currentProject!='week')
+            document.querySelector(`[data-title=${currentProject}]`).style.backgroundColor = 'initial'
+        taskList.replaceChildren()
+        currentProject = week.getAttribute('data-title')
+        deleteProjectButton.style.display = 'none'
+        newTaskButton.style.display = 'none'
+
+         //calling function to add this week's tasks to the task list
+         getThisWeekTasks()
+    })
+
+    //function to retrieve today's tasks and add 'em to task list
+    const getTodayTasks = ()=>{
+        let projects = projectHandler.getProjects()
+        let items = []
+        for(let i in projects){
+            for(let j in projects[i].tasks)
+            {
+                if(isToday(parseISO(projects[i].tasks[j].dueDate)))
+                {
+                    items.push(constructTaskElement(projects[i].tasks[j].name,
+                        projects[i].tasks[j].description,
+                        projects[i].tasks[j].dueDate,projects[i].tasks[j].priority,projects[i].tasks[j].project))
+            
+                }
+
+            }
         }
-        else{
-            elt.addEventListener('click',()=>{
-                elt.style.backgroundColor = 'rgba(255, 255, 255, .1)'
-                if(currentProject!="")
-                    document.querySelector(`[data-title=${currentProject}]`).style.backgroundColor = 'initial'
-                taskList.replaceChildren()
-                currentProject = elt.getAttribute('data-title')
-                deleteProjectButton.style.display = 'none'
-                newTaskButton.style.display = 'none'
-            })
+        taskList.replaceChildren(...items)
+
+    }
+
+    //function to retrieve this week's tasks and add 'em to task list
+    const getThisWeekTasks = ()=>{
+        let projects = projectHandler.getProjects()
+        let items = []
+        for(let i in projects){
+            for(let j in projects[i].tasks)
+            {
+                if(isThisWeek(parseISO(projects[i].tasks[j].dueDate)))
+                {
+                    items.push(constructTaskElement(projects[i].tasks[j].name,
+                        projects[i].tasks[j].description,
+                        projects[i].tasks[j].dueDate,projects[i].tasks[j].priority,projects[i].tasks[j].project))
+
+                }
+
+            }
         }
-     }
-    )
+        taskList.replaceChildren(...items)
+
+    }
 
     //on page loading inbox must be automatically selected
-    window.addEventListener('load',()=>{
-        inbox.click()   
+    window.addEventListener('load',()=>{  
+        let projects = storageHandler.readProjects()
+        if(projects!=null)
+            projectHandler.setProjects(projects)
+
+        for(let i in projects)
+        {
+            if(projects[i].title!='inbox'&&projects[i].title!='today'&&projects[i].title!='week')
+                sidebar.append(DOMHandler.constructProjectElement(projects[i].title))
+            
+        }
+        inbox.click() 
     })
 
     //deleting projects
@@ -412,11 +536,11 @@ const DOMHandler = (function (){
     let currentTask;
     //function to create a task DOM element
 
-    function constructTaskElement(nameArg,descArg,dueDateArg,priorityArg){
+    function constructTaskElement(nameArg,descArg,dueDateArg,priorityArg,projectArg){
 
         let task = document.createElement('div')
         task.classList.add('item')
-        task.setAttribute('data-title',nameArg)
+        task.setAttribute('data-project',projectArg)
         let name = document.createElement('div')
         name.textContent = nameArg
         name.setAttribute('id','task-DOM-name')
@@ -432,12 +556,24 @@ const DOMHandler = (function (){
             flag.style.filter = 'invert(21%) sepia(88%) saturate(6850%) hue-rotate(357deg) brightness(96%) contrast(112%)'        
 
         let dueDate = document.createElement('div')
-        dueDate.textContent = dueDateArg
+        dueDate.textContent = format(parseISO(dueDateArg),"MMM do")
         let options = document.createElement('div')
         options.classList.add('options')
         let eye = document.createElement('img')
         eye.setAttribute('id','eye')
         eye.src = eyeIcon
+
+        //to view task details
+        eye.addEventListener('click',()=>{
+            viewTitle.textContent ='Title : '+nameArg
+            viewDesc.textContent = 'Description : '+descArg
+            viewDate.textContent = 'Due date : '+format(parseISO(dueDateArg),"MMM do")
+            viewPriority.textContent = 'Priority : '+((priorityArg == '0')?'Low': (priorityArg =='1')?'Medium':'High')
+            viewTask.style.display = 'block'
+            content.style.filter = 'blur(8px)'
+
+        })
+
         let pencil = document.createElement('img')
         pencil.setAttribute('id','pencil')
         pencil.src = pencilIcon
@@ -450,6 +586,7 @@ const DOMHandler = (function (){
             editTaskDue.value = dueDateArg
             editTaskPriority.value = priorityArg
 
+            projectToEdit = pencil.parentNode.parentNode.getAttribute('data-project')
             currentTask = nameArg
 
             if(editTaskPriority.value=='0')
@@ -469,8 +606,9 @@ const DOMHandler = (function (){
 
         //deleting task
         trash.addEventListener('click',()=>{
+            taskHandler.cleanUp(trash.parentNode.parentNode.getAttribute('data-project'),nameArg)  
             taskList.removeChild(task)
-            taskHandler.cleanUp(currentProject,nameArg)      
+            
         })
 
 
@@ -493,11 +631,11 @@ const DOMHandler = (function (){
             &&taskDue.value.length!=0&&taskPriority.value.length!=0)
             {
                 let newTask = taskHandler.taskConstructor(taskName.value.trim(),taskDesc.value.trim(),
-                taskDue.value,taskPriority.value)
+                taskDue.value,taskPriority.value,currentProject)
                 
                 taskHandler.pushTask(newTask,currentProject)
                 let taskELT = constructTaskElement(newTask.name,newTask.description,
-                    newTask.dueDate,newTask.priority)
+                    newTask.dueDate,newTask.priority,newTask.project)
                 taskList.appendChild(taskELT);
 
                 //closing form
@@ -521,6 +659,6 @@ const DOMHandler = (function (){
         
     })
     
-
+    return {constructProjectElement}
 })();
 

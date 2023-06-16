@@ -15,7 +15,7 @@ body{
 
 .header{
     grid-area: 1/1/2/-1;
-    background-color: #82b74b;
+    background-color: #0284c7;
     color:white;
     font-size:60px;
     font-weight: bolder;
@@ -56,7 +56,8 @@ body{
 }
 
 .project-item:hover{
-    background-color: rgba(255, 255, 255, .1);
+    background-color: rgba(255, 255, 255, .1) !important;
+    cursor: pointer;
 }
 
 
@@ -77,7 +78,7 @@ body{
     
 }
 
-.add-task img,.list img,.add-task-form img,.edit-task-form img,svg{
+.add-task img,.list img,.add-task-form img,.edit-task-form img,svg,.view-task img{
     height: 30px;
     width:30px;
 }
@@ -122,7 +123,7 @@ body{
 }
 
 .add-task{
-    background-color: #82b74b;
+    background-color: #0284c7;
     height: 40px;
     color: white;
     font-size: larger;
@@ -234,7 +235,7 @@ body{
     justify-content: center;
     align-items: center;
     align-self: flex-end;
-    background-color: #82b74b;
+    background-color: #0284c7;
     color: white;
     font-size: large;
     font-weight: bolder;
@@ -269,7 +270,7 @@ body{
 
 #save-project-btn,#cancel-project-btn{
     font-size:large;
-    background-color: #82b74b;
+    background-color: #0284c7;
     width: 90px;
     padding-right: 6px;
     border-radius: 5px;
@@ -352,3 +353,41 @@ datalist{
 .edit-task-form #edit-button{
     width: 110px;
 }
+
+.view-task{
+    display: none; 
+    top:12%;
+    left:27%;
+    height: 400px;
+    width: 45%;
+    z-index: 1;
+    position: absolute;
+}
+
+
+.view-container{
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    box-shadow: 2px 2px 56px #888888;
+    width: 95%;
+    padding:2%;
+    justify-content: space-around;
+    font-size: 1.2em;
+    background-color:#262424;
+    color:white;
+    box-sizing: border-box ;
+
+}
+
+.view-task img{
+    position: relative;
+    top:12%;
+    left:88%;
+}
+
+.view-container div{
+    word-wrap: break-word;
+    
+}
+
